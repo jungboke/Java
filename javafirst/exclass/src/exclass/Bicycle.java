@@ -1,4 +1,4 @@
-package pjt_ex;
+package exclass;
 
 public class Bicycle {
 

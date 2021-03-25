@@ -1,10 +1,10 @@
-package pjt_ex;
+package exclass;
 
 public class MainClass {
 
 	public static void main(String[] args) {
 		
-		Bicycle myBicycle = new Bicycle(); // new ¿·¿¡ »ý¼ºÀÚ¸ð¾ç
+		Bicycle myBicycle = new Bicycle(); // new ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ï¿½
 		myBicycle.color = "red";
 		myBicycle.price = 100;
 		
