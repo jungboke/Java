@@ -1,4 +1,4 @@
-package com.servlet1;
+package com.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -10,16 +10,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class HelloServlet
+ * Servlet implementation class mapping
  */
-@WebServlet("/hs")
-public class HelloServlet extends HttpServlet {
+//@WebServlet("/SE")
+public class mapping extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public HelloServlet() {
+    public mapping() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -32,13 +32,7 @@ public class HelloServlet extends HttpServlet {
 		response.getWriter().append("Served at: ").append(request.getContextPath());
 		
 		PrintWriter out = response.getWriter();
-		out.print("<html>");
-		out.print("<head>");
-		out.print("</head>");
-		out.print("<body>");
-		out.print("<p>Hello Servlet!!</p>");
-		out.print("</body>");
-		out.print("</html>");
+		out.print("<p>Hello servlet!!</p>");
 	}
 
 	/**
