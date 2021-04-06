@@ -85,3 +85,167 @@ include: include file 설정
 taglib: 외부라이브러리 태그 설정
 
 	<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix=“c"%>
+
+jsp1.project(2):  
+1.jsp에서도 response,request객체는 servlet과
+동일한 역할 수행함.  
+2.response.sendredirection: 다른 서버file로 redirection함.  
+  
+jsp2.project:  
+1.jsp파일은 컴파일중에 servlet파일로 변환되기 때문에
+xml파일에  
+
+```
+<servlet>
+  	<servlet-name>servletEx</servlet-name>
+  	<jsp-file>/jspEx.jsp</jsp-file>
+  	<init-param>
+  		<param-name>adminId</param-name>
+  		<param-value>admin</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>adminPw</param-name>
+  		<param-value>1234</param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>servletEx</servlet-name>
+  	<url-pattern>/jspEx.jsp</url-pattern>
+  </servlet-mapping>
+```
+처럼 servlet 파일로 init parameter를 지정할수 있다.  
+이것은 config객체로 값을 얻을수 있다.  
+2.또한 xml파일에 context paramter로 지정하여
+
+```
+<context-param>
+  	<param-name>imgDir</param-name>
+  	<param-value>/upload/img</param-value>
+  </context-param>
+  <context-param>
+  	<param-name>testServerIP</param-name>
+  	<param-value>127.0.0.1</param-value>
+  </context-param>
+  <context-param>
+  	<param-name>realServerIP</param-name>
+  	<param-value>68.0.30.1</param-value>
+  </context-param>
+```
+특정 jsp파일이 변환된 servlet이 아닌 모든 servlet에서
+application객체를 사용하여 값을 얻어낼수 있다.  
+또한 applcation객체의 setAttribute,getAttribute함수를 사용하여  
+특정 servlet또는 jsp파일에서 application객체에 원하는
+parameter를 삽입하여 모든 servlet에서 활용가능하다.  
+3.jsp파일 내에서도 out객체를 사용한 print와 exception
+객체를 사용한 예외처리가 가능하다.  
+  
+jsp3.project:  
+1.jsp2에서 배운 servlet parameter(init-param)과 context parameter(context-param)  
+을 활용하여 servlet간의 데이터공유할수 있음.  
+
+jsp4.project:  
+1.http protocol은 client와 server사이에 request,response가 1번씩 진행되고 connection이 종료됨.  
+그래서 로그인정보,장바구니정보 같은 내용은 cookie라는 흔적을 client browser에 남겨줘야함.
+
+Cookie[] cookies = request.getCookies();
+		Cookie cookie = null;
+
+```		
+		for(Cookie c : cookies) {
+			System.out.println("c.getName() : " + c.getName() + "c.getValue() : " + c.getValue());
+			
+			if(c.getName().equals("memberID")) {
+				cookie = c;
+			}
+		}
+		if(cookie == null) {
+			System.out.println("cookie is null");
+			cookie = new Cookie("memberID", mID);
+		}
+		
+		response.addCookie(cookie);
+		cookie.setMaxAge(60*60);
+		
+		response.sendRedirect("loginOK.jsp");
+```
+jsp5 project:  
+1.session은 cookie와 비슷한데 정보를 server에 저장한다는 차이가 있음.  
+2.server에 저장하지만 호출법은 request.getSession()으로 request에서 뽑아냄.
+
+```
+HttpSession session = request.getSession();
+		session.setAttribute("memberID", mID);
+		
+		response.sendRedirect("loginOK.jsp");
+	}
+```
+3.logout할때, 서버에 저장되어있는 session을 삭제해줘야함.
+
+```
+ttpSession session = request.getSession();
+		session.invalidate();
+		
+		response.sendRedirect("login.jsp");
+```
+jsp6 project:  
+1.jsp,servlet에서 한글이 처리될수 있게 하기위해서는 post방식은 servlet,jsp파일에  
+request.setCharacterEncoding("UTF-8"); 추가해줘야함.  
+
+servlet file:
+
+```
+request.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
+```
+jsp file:
+
+```
+<% request.setCharacterEncoding("UTF-8"); %>
+```
+2.get방식은 server.xml에 <Connector URIEncoding="UTF-8" /> 추가해줘야함.
+
+```
+<Connector URIEncoding="UTF-8" connectionTimeout="20000" port="8090" protocol="HTTP/1.1" redirectPort="8443"/>
+```
+3.filter servlet file로 여러 servlet이나 jsp에 해당문구를 따로 입력하지 않고 처리가능함.  
+servlet을 만들고나서 web.xml에 filter tag를 등록해줘야함.  
+
+```
+public class TempFilter implements Filter {
+@Override
+public void init(FilterConfig arg0) throws ServletException {
+	System.out.println("--filter init()--");
+}
+@Override
+public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+throws IOException, ServletException {
+	System.out.println("--filter doFilter()--");
+	
+	//request filter
+	req.setCharacterEncoding("UTF-8");
+	chain.doFilter(req, res);
+	
+	//response filter
+	
+}
+@Override
+public void destroy() {
+	System.out.println("--filter destroy()--");
+}
+}
+```
+web.xml:
+
+```
+  <!-- filter -->
+  <filter>
+  	<filter-name>tempFilter</filter-name>
+  	<filter-class>com.servlet.filter.TempFilter</filter-class>
+  </filter>
+  <filter-mapping>
+  	<filter-name>tempFilter</filter-name>
+  	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+```
+jsp7 project:  
+1.
