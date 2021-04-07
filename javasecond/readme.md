@@ -247,5 +247,342 @@ web.xml:
   	<url-pattern>/*</url-pattern>
   </filter-mapping>
 ```
-jsp7 project:  
-1.
+jdbc1 project:  
+1.jsp, servlet file이 database와 연동되기 위해서는 JDBC라는 API를 사용해야 하는데 database file에서  
+ojdbc file을 eclipse library에 복사해와서 사용해야 함.  
+
+![jdbc1](https://github.com/jungboke/Java/blob/main/img/jdbc.PNG?raw=true)
+
+```
+String driver = "oracle.jdbc.driver.OracleDriver";
+		String url = "jdbc:oracle:thin:@localhost:1521:xe";
+		String id = "scott";
+		String pw = "tiger";
+		
+		Connection con = null;
+		Statement stmt = null;
+		
+		try {
+			Class.forName(driver);
+			
+			con = DriverManager.getConnection(url, id, pw);
+			stmt = con.createStatement();
+			String sql = "INSERT INTO book(book_id, book_name, book_loc)";
+					sql += " VALUES (BOOK_SEQ.NEXTVAL, '" + bookName + "', '" + bookLoc + "')";
+			int result = stmt.executeUpdate(sql);
+			
+			if(result == 1) {
+				out.print("INSERT success!!");
+			} else {
+				out.print("INSERT fail!!");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(stmt != null) stmt.close();
+				if(con != null) con.close();
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+```
+2.data 수정관련 query문 사용할때는 executeUpdate()함수, data search관련 query문 사용할때는 excuteQuery()함수 사용함.
+
+```
+String driver = "oracle.jdbc.driver.OracleDriver";
+		String url = "jdbc:oracle:thin:@localhost:1521:xe";
+		String id = "scott";
+		String pw = "tiger";
+		
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet res = null;
+		
+		try {
+			Class.forName(driver);
+			
+			con = DriverManager.getConnection(url, id, pw);
+			stmt = con.createStatement();
+			String sql = "SELECT * FROM book";
+			res = stmt.executeQuery(sql);
+			
+			while (res.next()) {
+				int bookId = res.getInt("book_id");
+				String bookName = res.getString("book_name");
+				String bookLoc = res.getString("book_loc");
+				
+				out.print("bookId : " + bookId + ", ");
+				out.print("bookName : " + bookName + ", ");
+				out.print("bookLoc : " + bookLoc + "</br>");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(res != null) res.close();
+				if(stmt != null) stmt.close();
+				if(con != null) con.close();
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+```
+3.preparedstatement를 사용하여 query작성방식을 최소화할수 있음.
+
+```
+		String driver = "oracle.jdbc.driver.OracleDriver";
+		String url = "jdbc:oracle:thin:@localhost:1521:xe";
+		String id = "scott";
+		String pw = "tiger";
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			Class.forName(driver);
+			
+			con = DriverManager.getConnection(url, id, pw);
+			String sql = "UPDATE book SET book_loc = ? WHERE book_name = ?";
+					
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, "001-00007123");
+			pstmt.setString(2, "book7");
+			
+			int result = pstmt.executeUpdate();
+			
+			if(result == 1) {
+				out.print("UPDATE success!!");
+			} else {
+				out.print("UPDATE fail!!");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(pstmt != null) pstmt.close();
+				if(con != null) con.close();
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
+	}
+
+}
+```
+jdbc2 project:  
+1.위에서 만들었던 database와 연동되는 servlet을 좀더 간단하게 만들기 위해서  
+database와 연동하고 data를 java형식으로 받아오는 부분을
+DAO module(class)로 생성하고, data를 java형식으로 변환하는   부분을 DTO module(class)로 만들어서 servlet을 구성함.  
+DAO:  
+
+```
+public class BookDAO {
+
+	String driver = "oracle.jdbc.driver.OracleDriver";
+	String url = "jdbc:oracle:thin:@localhost:1521:xe";
+	String id = "scott";
+	String pw = "tiger";
+	
+	public BookDAO() {
+		try {
+			Class.forName(driver);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public ArrayList<BookDTO> select() {
+		
+		ArrayList<BookDTO> list = new ArrayList<BookDTO>();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet res = null;
+		
+		try {
+			con = DriverManager.getConnection(url, id, pw);
+			String sql = "SELECT * FROM book";
+			pstmt = con.prepareStatement(sql);
+			res = pstmt.executeQuery();
+			
+			while(res.next()) {
+				int bookId = res.getInt("book_id");
+				String bookName = res.getString("book_name");
+				String bookLoc = res.getString("book_loc");
+				
+				BookDTO bookDTO = new BookDTO(bookId, bookName, bookLoc);
+				list.add(bookDTO);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(res!=null) res.close();
+				if(pstmt!=null) pstmt.close();
+				if(con!=null) con.close();
+				
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		
+		return list;
+	}
+}
+```
+DTO:  
+
+```
+public class BookDTO {
+	
+	int bookId;
+	String bookName;
+	String bookLoc;
+	
+	
+	public BookDTO(int bookId, String bookName, String bookLoc) {
+		this.bookId = bookId;
+		this.bookName = bookName;
+		this.bookLoc = bookLoc;
+	}
+
+
+	public int getBookId() {
+		return bookId;
+	}
+
+
+	public String getBookName() {
+		return bookName;
+	}
+
+
+	public String getBookLoc() {
+		return bookLoc;
+	}
+	
+	
+}
+```
+Servlet:  
+
+```
+public class BookServlet extends HttpServlet {
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
+		
+		
+		BookDAO bookDAO = new BookDAO();
+		ArrayList<BookDTO> list = bookDAO.select();
+		
+		for (int i = 0; i < list.size(); i++) {
+			BookDTO dto = list.get(i);
+			int bookId = dto.getBookId();
+			String bookName = dto.getBookName();
+			String bookLoc = dto.getBookLoc();
+			
+			out.println("bookId : " + bookId + ", ");
+			out.println("bookName : " + bookName + ", ");
+			out.println("bookLoc : " + bookLoc + "<br>");
+			
+		}
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
+
+}
+```
+jdbc3 project:  
+1.database와 연동될때마다 connection, handling, connection해제를 반복해서 사용하는 것보다  
+database와 관련된 connection정보들을 connection pool에 다넣어서 그것을 객체(dataSource)로 이용하면 더 편리함.  
+server의 context.xml에 아래 코드를 기입하여 web container를 pool로서 사용한다고 명시함.
+
+```
+<Resource
+    	auth="Container"
+    	driverClassName="oracle.jdbc.driver.OracleDriver"
+    	url="jdbc:oracle:thin:@localhost:1521:xe"
+    	username="scott"
+    	password="tiger"
+    	name="jdbc/Oracle18c"
+    	type="javax.sql.DataSource"
+    	maxActive="4"
+    	maxWait="10000" />
+```
+2.이후에 connection을 수작업으로 하는 대신 connection pool을 사용하여 connection을  
+보다 빠르게 진행함.  
+
+```
+public class BookDAO {
+
+	DataSource dataSource;
+	//String driver = "oracle.jdbc.driver.OracleDriver";
+	//String url = "jdbc:oracle:thin:@localhost:1521:xe";
+	//String id = "scott";
+	//String pw = "tiger";
+	
+	public BookDAO() {
+		try {
+	//		Class.forName(driver);
+			javax.naming.Context context = new InitialContext();
+			dataSource = (DataSource)context.lookup("java:comp/env/jdbc/Oracle18c");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public ArrayList<BookDTO> select() {
+		
+		ArrayList<BookDTO> list = new ArrayList<BookDTO>();
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet res = null;
+		
+		try {
+    //		con = DriverManager.getConnection(url, id, pw);
+			con = dataSource.getConnection();
+			String sql = "SELECT * FROM book";
+			pstmt = con.prepareStatement(sql);
+			res = pstmt.executeQuery();
+			
+			while(res.next()) {
+				int bookId = res.getInt("book_id");
+				String bookName = res.getString("book_name");
+				String bookLoc = res.getString("book_loc");
+				
+				BookDTO bookDTO = new BookDTO(bookId, bookName, bookLoc);
+				list.add(bookDTO);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(res!=null) res.close();
+				if(pstmt!=null) pstmt.close();
+				if(con!=null) con.close();
+				
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		
+		return list;
+	}
+}
+```
