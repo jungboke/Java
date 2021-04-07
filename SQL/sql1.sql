@@ -1,3 +1,6 @@
+-- setting 다끝나면 항상 commit해줘야 데이터 변경사항 저장되고,
+-- 실행원하는 부분에 드래그해서 ctl+enter해야 실행됨.
+
 -- table 생성
 CREATE TABLE book (
     book_id NUMBER(4),
@@ -30,4 +33,23 @@ CREATE SEQUENCE book_seq;
 INSERT INTO
     book(book_id, book_name, book_loc)
 VALUES
-(BOOK_SEQ.NEXTVAL, 'book1', '001-00001');
+(BOOK_SEQ.NEXTVAL, 'book5', '001-00023');
+
+-- 데이터 수정
+UPDATE book SET book_loc = '005-00055'
+WHERE BOOK_NAME = 'book2';
+
+-- 데이터 삭제
+DELETE FROM book
+WHERE book_id = 2;
+
+-- 데이터 검색
+SELECT * FROM book;
+
+SELECT book_name AS 책이름, book_loc AS 책위치 FROM book;
+
+-- 데이터 검색 + 조건
+SELECT * FROM book WHERE book_id LIKE '1%';
+-- 데이터 검색 + 정렬
+SELECT * FROM book ORDER BY book_loc ASC;
+SELECT * FROM book ORDER BY book_loc DESC;
