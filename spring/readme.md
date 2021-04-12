@@ -130,3 +130,138 @@ maven project3:
 		<constructor-arg ref="studentDao" ></constructor-arg>
 	</bean>
 ```
+maven project4:  
+1.의존 객체 주입 방법에는 생성자이용,setter이용,List타입 이용,Map타입 이용이 있음.  
+  
+생성자이용 의존객체주입
+
+```
+public StudentRegisterService(StudentDao studentDao) {
+		this.studentDao = studentDao;
+	}
+```
+```
+<bean id="registerService" class="ems.member.service.StudentRegisterService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+```
+setter이용 의존객체주입
+
+```
+public void setJdbcUrl(String jdbcUrl) {
+		this.jdbcUrl = jdbcUrl;
+	}
+```
+```
+<bean id="dataBaseConnectionInfoDev" class="ems.member.DataBaseConnectionInfo">
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe" />
+		<property name="userId" value="scott" />
+		<property name="userPw" value="tiger" />
+	</bean>
+```
+List타입이용 의존객체주입
+
+```
+public void setDevelopers(List<String> developers) {
+		this.developers = developers;
+	}
+```
+```
+<property name="developers">
+			<list>
+				<value>Cheney.</value>
+				<value>Eloy.</value>
+				<value>Jasper.</value>
+				<value>Dillon.</value>
+				<value>Kian.</value>
+			</list>
+		</property>
+```
+Map타입이용 의존객체주입
+
+```
+public void setAdministrators(Map<String, String> administrators) {
+		this.administrators = administrators;
+	}
+```
+```
+<property name="administrators">
+			<map>
+				<entry>
+					<key>
+						<value>Cheney</value>
+					</key>
+					<value>cheney@springPjt.org</value>
+				</entry>
+				<entry>
+					<key>
+						<value>Jasper</value>
+					</key>
+					<value>jasper@springPjt.org</value>
+				</entry>
+			</map>
+		</property>
+```
+maven project5:  
+1.spring 설정 파일인 applicationContext.xml이 너무 길 경우
+여러 xml 파일로 나누어 설정가능함.  
+
+xml path들을 배열로 받아 사용하는 방법
+
+```
+ String[] appCtxs = {"classpath:appCtx1.xml", "classpath:appCtx2.xml", "classpath:appCtx3.xml"};
+			GenericXmlApplicationContext ctx = 
+					new GenericXmlApplicationContext(appCtxs);
+```
+하나의 xml파일에 나머지 xml파일들을 import해서 사용하는 방법
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+ 		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="classpath:appCtx2.xml"/>
+	<import resource="classpath:appCtx3.xml"/>
+
+	<bean id="studentDao" class="ems.member.dao.StudentDao" ></bean>
+	
+	
+	<bean id="registerService" class="ems.member.service.StudentRegisterService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+	
+	<bean id="modifyService" class="ems.member.service.StudentModifyService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+	
+	<bean id="deleteService" class="ems.member.service.StudentDeleteService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+	
+	<bean id="selectService" class="ems.member.service.StudentSelectService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+	
+	<bean id="allSelectService" class="ems.member.service.StudentAllSelectService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+	
+</beans>
+```
+2. spring container의 bean설정 범위에는 싱글톤과 프로토타입이 있는데 싱글톤은 container 생성시 객체하나만
+생성하여 bean호출시, 그 객체만을 사용하는 방법이고, 프로토타입은 bean호출마다 객체를 생성하여 사용하는 방법으로
+특정 타입의 여러 bean객체가 생성될수 있음.
+
+프로토타입으로 설정 방법 : bean객체 정의시 scope속성 추가
+
+```
+<bean id="dependencyBean" class="scope.ex.DependencyBean"
+		scope="prototype">
+		<constructor-arg ref="injectionBean" />
+		<property name="injectionBean" ref="injectionBean" />
+	</bean>
+```
+maven project6:  
