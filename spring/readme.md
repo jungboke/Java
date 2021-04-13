@@ -264,4 +264,40 @@ xml path들을 배열로 받아 사용하는 방법
 		<property name="injectionBean" ref="injectionBean" />
 	</bean>
 ```
-maven project6:  
+maven project6:
+의존 객체 자동 주입:  
+스프링 설정 파일에서 의존 객체를 주입할 때 ``<constructor-org>`` 또는 ``<property>`` 태그로
+의존 대상 객체를 명시하지 않아도 스프링 컨테이너가 자동으로 필요한 의존 대상 객체를 찾아서 의존 대상 객체가 필요한 객체에 주입해 주는 기능을 함.  
+구현 방법은 @Autowired, @Resource 어노테이션을 이용해서 구현함.  
+  
+1.appCtx xml파일에 ``<context:annotation-config />``를 명시해주고
+namespace에 ``xmlns:context="http://www.springframework.org/schema/context"``를 추가해주고, schema에
+
+```
+		http://www.springframework.org/schema/beans/spring-beans.xsd 
+ 		http://www.springframework.org/schema/context  
+ 		http://www.springframework.org/schema/context/spring-context.xsd">
+ ```
+ 를 추가해준다.
+ 2.자동 주입을 원하는 객체의 생성자 혹은 property, method위에 @Autowired or @Resource를
+ 추가함.
+ 3.Resource와 Autowired의 차이점은 Autowired는 컨테이너내에서 해당 의존객체 검색시
+ 타입으로 검색하는 반면에, Resource는 이름으로 검색한다. 그리고 Resource는 생성자에는
+ 적용할 수 없으며, property나 method에 적용할때에는 디폴트 생성자를 작성해주어 객체가
+ 우선적으로 생성될 수 있도록 해주어야 함.  
+ 
+ maven project7:  
+ 1.컨테이너 내부에 동일한 객체가 2개 이상있는 경우 컨테이너는
+ 자동 주입 대상 객체를 판단하지 못해서 Exception을 발생시킨다.
+ 이를 해결하기 위해서는 컨테이너 내부의 원하는 bean객체에
+ ``<qualifier value="usedDao"/>``처럼 qualifier 태그를
+ 추가해주고 이 객체를 의존객체로 사용하는 객체에서 @qualifier("usedDao")
+ 를 추가해준다. @qualifier 어노테이션은 생성자에는 이용할수 없는듯하다.
+ 2.@Inject도 있는데 @Autowired와 동일한 기능을 하고, 실무에서는
+ @Autowired를 주로 사용한다. Inject는 qualifier의 기능을 하는 @Named
+ 어노테이션을 가지고있고, qualifier와는 다르게 bean태그에 추가할 필요
+ 없으며, 의존객체를 사용하는 객체에 @Named("wordDao1")처럼 bean의 id
+ 를 사용한다.  
+ 
+ maven project8:  
+  
