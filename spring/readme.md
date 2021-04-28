@@ -300,4 +300,65 @@ namespace에 ``xmlns:context="http://www.springframework.org/schema/context"``를 
  를 사용한다.  
  
  maven project8:  
-  
+ 1. bean 객체의 생명주기는 스프링 컨테이너의 생명주기와 같이 한다.
+ 스프링 컨테이너 초기화시 빈 객체가 생성 및 주입되고 스프링 컨테이너 종료시 빈객체는 소멸된다.
+ 2. bean 객체의 생성자, 소멸자를 생성하는 방법은 interface와 method기법이 있다.
+ 3. interface(InitializingBean, DisposableBean)
+ 
+ ```
+ public class BookSearchService implements InitializingBean, DisposableBean {
+
+	@Autowired
+	private BookDao bookDao;
+	
+	public BookSearchService() { }
+	
+	public Book searchBook(String bNum) {
+		Book book = bookDao.select(bNum);
+		return book;
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		System.out.println("object dispose");
+		
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		System.out.println("object create");
+		
+	}
+	
+}
+ ```
+ 4.method(spring 설정파일의 bean에 init-method, destroy-method속성 추가)
+ 
+ ```
+ <bean id="bookRegisterService" class="com.brms.book.service.BookRegisterService" 
+	init-method="initMethod" destroy-method="destroyMethod"/>
+```
+```
+public class BookRegisterService {
+
+	@Autowired
+	private BookDao bookDao;
+	
+	public BookRegisterService() { }
+	
+	public void register(Book book) {
+		bookDao.insert(book);
+	}
+	
+	public void initMethod() {
+		System.out.println("BookRegisterService 빈(Bean)객체 생성 단계");
+	}
+	
+	public void destroyMethod() {
+		System.out.println("BookRegisterService 빈(Bean)객체 소멸 단계");
+	}
+}
+```
+ 
+
+ 
