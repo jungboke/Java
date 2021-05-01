@@ -16,14 +16,20 @@ import ems.member.service.StudentModifyService;
 import ems.member.service.StudentRegisterService;
 import ems.member.service.StudentSelectService;
 
-@Configuration
+@Configuration //spring container를 생성할수 있는 설정 파일임을 명시
 public class MemberConfig {
 
-	@Bean
+	//<bean id="studentDao" class="ems.member.dao.StudentDao" ></bean>
+	@Bean // Bean 객체임을 명시
 	public StudentDao studentDao() {
 		return new StudentDao();
 	}
 	
+	/*
+	 <bean id="registerService" class="ems.member.service.StudentRegisterService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+	 */
 	@Bean
 	public StudentRegisterService registerService() {
 		return new StudentRegisterService(studentDao());
@@ -49,6 +55,13 @@ public class MemberConfig {
 		return new StudentAllSelectService(studentDao());
 	}
 	
+	/*
+	 <bean id="dataBaseConnectionInfoDev" class="ems.member.DataBaseConnectionInfo">
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe" />
+		<property name="userId" value="scott" />
+		<property name="userPw" value="tiger" />
+	</bean>
+	 */
 	@Bean
 	public DataBaseConnectionInfo dataBaseConnectionInfoDev() {
 		DataBaseConnectionInfo infoDev = new DataBaseConnectionInfo();

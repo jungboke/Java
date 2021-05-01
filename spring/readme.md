@@ -286,24 +286,24 @@ namespace에 ``xmlns:context="http://www.springframework.org/schema/context"``를 
  적용할 수 없으며, property나 method에 적용할때에는 디폴트 생성자를 작성해주어 객체가
  우선적으로 생성될 수 있도록 해주어야 함.  
  
- maven project7:  
- 1.컨테이너 내부에 동일한 객체가 2개 이상있는 경우 컨테이너는
+maven project7:  
+1.컨테이너 내부에 동일한 객체가 2개 이상있는 경우 컨테이너는
  자동 주입 대상 객체를 판단하지 못해서 Exception을 발생시킨다.
  이를 해결하기 위해서는 컨테이너 내부의 원하는 bean객체에
  ``<qualifier value="usedDao"/>``처럼 qualifier 태그를
  추가해주고 이 객체를 의존객체로 사용하는 객체에서 @qualifier("usedDao")
  를 추가해준다. @qualifier 어노테이션은 생성자에는 이용할수 없는듯하다.
- 2.@Inject도 있는데 @Autowired와 동일한 기능을 하고, 실무에서는
+2.@Inject도 있는데 @Autowired와 동일한 기능을 하고, 실무에서는
  @Autowired를 주로 사용한다. Inject는 qualifier의 기능을 하는 @Named
  어노테이션을 가지고있고, qualifier와는 다르게 bean태그에 추가할 필요
  없으며, 의존객체를 사용하는 객체에 @Named("wordDao1")처럼 bean의 id
  를 사용한다.  
  
- maven project8:  
- 1. bean 객체의 생명주기는 스프링 컨테이너의 생명주기와 같이 한다.
+maven project8:  
+1. bean 객체의 생명주기는 스프링 컨테이너의 생명주기와 같이 한다.
  스프링 컨테이너 초기화시 빈 객체가 생성 및 주입되고 스프링 컨테이너 종료시 빈객체는 소멸된다.
- 2. bean 객체의 생성자, 소멸자를 생성하는 방법은 interface와 method기법이 있다.
- 3. interface(InitializingBean, DisposableBean)
+2. bean 객체의 생성자, 소멸자를 생성하는 방법은 interface와 method기법이 있다.
+3. interface(InitializingBean, DisposableBean)
  
  ```
  public class BookSearchService implements InitializingBean, DisposableBean {
@@ -332,7 +332,7 @@ namespace에 ``xmlns:context="http://www.springframework.org/schema/context"``를 
 	
 }
  ```
- 4.method(spring 설정파일의 bean에 init-method, destroy-method속성 추가)
+4.method(spring 설정파일의 bean에 init-method, destroy-method속성 추가)
  
  ```
  <bean id="bookRegisterService" class="com.brms.book.service.BookRegisterService" 
@@ -359,6 +359,155 @@ public class BookRegisterService {
 	}
 }
 ```
- 
+maven project9:  
+1.xml 파일인 spring 설정파일을 @Configuration을 사용한 java파일로 변경할 수있다.
+
+```
+@Configuration //spring container를 생성할수 있는 설정 파일임을 명시
+public class MemberConfig {
+
+	//<bean id="studentDao" class="ems.member.dao.StudentDao" ></bean>
+	@Bean // Bean 객체임을 명시
+	public StudentDao studentDao() {
+		return new StudentDao();
+	}
+	
+	/*
+	 <bean id="registerService" class="ems.member.service.StudentRegisterService">
+		<constructor-arg ref="studentDao" ></constructor-arg>
+	</bean>
+	 */
+	@Bean
+	public StudentRegisterService registerService() {
+		return new StudentRegisterService(studentDao());
+	}
+	
+	@Bean
+	public StudentModifyService modifyService() {
+		return new StudentModifyService(studentDao());
+	}
+	
+	@Bean
+	public StudentSelectService selectService() {
+		return new StudentSelectService(studentDao());
+	}
+	
+	@Bean
+	public StudentDeleteService deleteService() {
+		return new StudentDeleteService(studentDao());
+	}
+	
+	@Bean
+	public StudentAllSelectService allSelectService() {
+		return new StudentAllSelectService(studentDao());
+	}
+	
+	/*
+	 <bean id="dataBaseConnectionInfoDev" class="ems.member.DataBaseConnectionInfo">
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe" />
+		<property name="userId" value="scott" />
+		<property name="userPw" value="tiger" />
+	</bean>
+	 */
+	@Bean
+	public DataBaseConnectionInfo dataBaseConnectionInfoDev() {
+		DataBaseConnectionInfo infoDev = new DataBaseConnectionInfo();
+		infoDev.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:xe");
+		infoDev.setUserId("scott");
+		infoDev.setUserPw("tiger");
+		
+		return infoDev;
+	}
+	
+	@Bean
+	public DataBaseConnectionInfo dataBaseConnectionInfoReal() {
+		DataBaseConnectionInfo infoReal = new DataBaseConnectionInfo();
+		infoReal.setJdbcUrl("jdbc:oracle:thin:@192.168.0.1:1521:xe");
+		infoReal.setUserId("masterid");
+		infoReal.setUserPw("masterpw");
+		
+		return infoReal;
+	}
+	
+	@Bean
+	public EMSInformationService informationService() {
+		EMSInformationService info = new EMSInformationService();
+		info.setInfo("Education Management System program was developed in 2015.");
+		info.setCopyRight("COPYRIGHT(C) 2015 EMS CO., LTD. ALL RIGHT RESERVED. CONTACT MASTER FOR MORE INFORMATION.");
+		info.setVer("The version is 1.0");
+		info.setsYear(2015);
+		info.setsMonth(1);
+		info.setsDay(1);
+		info.seteYear(2015);
+		info.seteMonth(2);
+		info.seteDay(28);
+		
+		ArrayList<String> developers = new ArrayList<String>();
+		developers.add("Cheney.");
+		developers.add("Eloy.");
+		developers.add("Jasper.");
+		developers.add("Dillon.");
+		developers.add("Kian.");
+		info.setDevelopers(developers);
+		
+		Map<String, String> administrators = new HashMap<String, String>();
+		administrators.put("Cheney", "cheney@springPjt.org");
+		administrators.put("Jasper", "jasper@springPjt.org");
+		info.setAdministrators(administrators);
+		
+		Map<String, DataBaseConnectionInfo> dbInfos = new HashMap<String, DataBaseConnectionInfo>();
+		dbInfos.put("dev", dataBaseConnectionInfoDev());
+		dbInfos.put("real", dataBaseConnectionInfoReal());
+		info.setDbInfos(dbInfos);
+		
+		return info;
+	}
+	
+}
+```
+maven project10:  
+	ctr + shift + o : 쓸모없는  package import들 삭제  
+	drag + tap : 드래그한 부분 전체 탭  
+1. annotation을 이용한 java 스프링 설정 파일은 xml 파일과 마찬가지로 용도별로 분할해서 사용할 수 있음. 주로 DAO, service부분, database 부분, 나머지 부분으로 분할해서 사용함. 한 분할 파일이 다른 분할 파일 부분을
+참조하는 경우 참조되는 bean 객체를 @autowired(주입)해서 사용함.
+
+```
+public class MemberConfig3 {
+
+	/*
+	 * @Bean
+		public DataBaseConnectionInfo dataBaseConnectionInfoDev() {
+			DataBaseConnectionInfo infoDev = new DataBaseConnectionInfo();
+			infoDev.setJdbcUrl("jdbc:oracle:thin:@localhost:1521:xe");
+			infoDev.setUserId("scott");
+			infoDev.setUserPw("tiger");
+			
+			return infoDev;
+		}
+		
+		@Bean
+		public DataBaseConnectionInfo dataBaseConnectionInfoReal() {
+			DataBaseConnectionInfo infoReal = new DataBaseConnectionInfo();
+			infoReal.setJdbcUrl("jdbc:oracle:thin:@192.168.0.1:1521:xe");
+			infoReal.setUserId("masterid");
+			infoReal.setUserPw("masterpw");
+			
+			return infoReal;
+		}
+	 */
+	
+	@Autowired
+	DataBaseConnectionInfo dataBaseConnectionInfoDev;
+	
+	@Autowired
+	DataBaseConnectionInfo dataBaseConnectionInfoReal;
+```
+2. 분할된 java spring 설정파일들은 하나의 java 파일에서 @import 해서 사용할수 있음.
+
+```
+@Import({MemberConfig2.class, MemberConfig3.class})
+```
+maven project11:  
+1.
 
  
