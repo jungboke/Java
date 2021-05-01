@@ -508,6 +508,18 @@ public class MemberConfig3 {
 @Import({MemberConfig2.class, MemberConfig3.class})
 ```
 maven project11:  
+![mvc_framework](https://github.com/jungboke/Java/blob/main/img/mvc_framework.PNG?raw=true)
+![DispatcherServlet](https://github.com/jungboke/Java/blob/main/img/DispatcherServlet.PNG?raw=true)
+![web_structure](https://github.com/jungboke/Java/blob/main/img/web_structure.PNG?raw=true)
+
+1. web.xml파일에 spring framework가 제공하는 DispatcherServlet을 mapping하고 init-parameter로 servlet-context.xml(스프링 설정파일)을 설정하여 container가 바로 생성될 수있게 설정해줌. 만약 init-parameter를 설정안했을 때에는 자동적으로 appServlet-context.xml의 이름을 가진 설정파일로 container를 생성함.  
+2. servlet-context.xml 파일에 ``<annotation-driven/>``를 입력하여 @Controller annotation을 controller 객체로 사용할 클래스에 정의 할수 있도록함.  
+3. @RequestMapping annotation을 controller내의 원하는 method에 정의하여 handlerAdapter가 해당 method를 사용할수 있게 함.  
+4. 해당 method가 실행되어 생성된 model 타입의 parameter를 다시 DispatcherServlet에 전달함.  
+5. DispatcherServlet은 전달받은 model을 viewResolver에게 다시 전달하여 해당model에 맞는 view를 생성해 다시 클라이언트에게 전달함.  
+6. HandlerMapping, HandlerAdapter, ViewResolver는 DispatcherServlet이 생성한 container에 들어있는 bean객체로 사용되며, 개발자가 직접 개발해야 하는 부분은 Controller와 View임. 
+
+maven project12:  
 1.
 
  
