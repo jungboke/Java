@@ -520,6 +520,11 @@ maven project11:
 6. HandlerMapping, HandlerAdapter, ViewResolver는 DispatcherServlet이 생성한 container에 들어있는 bean객체로 사용되며, 개발자가 직접 개발해야 하는 부분은 Controller와 View임. 
 
 maven project12:  
-1.
+1. project11의 내용의 상세설명으로 스프링 MVC 웹서비스-2 수강.  
 
+![project_structure](https://github.com/jungboke/Java/blob/main/img/project_structure.PNG?raw=true)
+![controller](https://github.com/jungboke/Java/blob/main/img/controller.PNG?raw=true)
+
+maven project13:  
+1.
  
