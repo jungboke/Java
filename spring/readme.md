@@ -526,5 +526,14 @@ maven project12:
 ![controller](https://github.com/jungboke/Java/blob/main/img/controller.PNG?raw=true)
 
 maven project13:  
+1. STS 없이 MVC project를 생성하는 방법  
+(1)project 폴더 생성
+![mvc_folder](https://github.com/jungboke/Java/blob/main/img/mvc_folder.PNG?raw=true)
+(2)xml 설정파일들 생성  
+	src-level의 pom.xml, views-level의 web.xml, appServlet내의 servlet-context.xml, 	appServlet level의 root-context.xml  
+(3)pom.xml내의 groupId에 맞게 java package 생성  
+(4)package내에 Controller 생성  
+(5)views내에 jsp 파일 생성  
+
+maven project14:  
 1.
- 
