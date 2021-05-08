@@ -535,5 +535,32 @@ maven project13:
 (4)package내에 Controller 생성  
 (5)views내에 jsp 파일 생성  
 
-maven project14:  
-1.
+maven project14(lec17):  
+1.한글처리를 위해 web.xml에 삽입할 filter 구문
+
+```
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>
+			org.springframework.web.filter.CharacterEncodingFilter
+		</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+		
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+```
+2.member service 구현을 위해 프로젝트 생성시 만든 lec17 package에 member package 따로 생성함. 그 안에 service, controller, dao package 생성후, memberservice, membercontroller, memberdao 객체를 만듦. 이렇게 생성된 객체들을 container에 bean으로서 담기 위해 3가지 방법중 하나로 구현함. 보통 service는 @service annotation을 사용하여 스프링 설정파일에 bean 명시없이 container에 담고 @autowired로 객체 주입함. Dao는 @service와 같은 기능의 annotation인 @component,@repository중 @component를 주로 사용하여 @autowired해서 객체 주입해 사용함.
+
+![memService](https://github.com/jungboke/Java/blob/main/img/memService.PNG?raw=true)
+![memDao](https://github.com/jungboke/Java/blob/main/img/memDao.PNG?raw=true)
