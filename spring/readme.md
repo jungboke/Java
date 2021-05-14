@@ -564,3 +564,92 @@ maven project14(lec17):
 
 ![memService](https://github.com/jungboke/Java/blob/main/img/memService.PNG?raw=true)
 ![memDao](https://github.com/jungboke/Java/blob/main/img/memDao.PNG?raw=true)
+  
+maven project15(lec17):  
+1.웹 어플리케이션 : (controller,DAO,service객체) + 웹컴포넌트(html) + 뷰컴포넌트(jsp)  
+2.@RequestMapping은 value와 method parameter로 이루어져 있는데, default method parameter는 method=RequestMethod.Get으로 입력하지 않을시 활용되고, value 값만 입력되어 있으면 value=는 생략가능함. Post랑 Get 일치하지 않을시, 일치하지 않는대로 활용됨. 다른 pakage에도 /memJoin이 존재시 /lec17/member/memJoin으로 구체화 가능하고 html form에 맞게 @RequestMapping도 변경해줘야함. 이때 /member를 모든 @RequestMappig에 붙이는것 대신 MemberController자체에 @RequestMapping("/member")를 써서 전체에 적용가능함.
+
+MemberController
+
+```
+@RequestMapping(value="/memJoin", method=RequestMethod.POST)
+	public String memJoin(Model model, HttpServletRequest request) {
+		String memId = request.getParameter("memId");
+		String memPw = request.getParameter("memPw");
+		String memMail = request.getParameter("memMail");
+		String memPhone1 = request.getParameter("memPhone1");
+		String memPhone2 = request.getParameter("memPhone2");
+		String memPhone3 = request.getParameter("memPhone3");
+		
+		service.memberRegister(memId, memPw, memMail, memPhone1, memPhone2, memPhone3);
+		
+		model.addAttribute("memId", memId);
+		model.addAttribute("memPw", memPw);
+		model.addAttribute("memMail", memMail);
+		model.addAttribute("memPhone", memPhone1 + " - " + memPhone2 + " - " + memPhone3);
+		
+		return "memJoinOk";
+	}
+```
+memJoin.html
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1>Member Join</h1>
+	<form action="/lec17/memJoin" method="post">
+		ID : <input type="text" name="memId" ><br />
+		PW : <input type="password" name="memPw" ><br />
+		MAIL : <input type="text" name="memMail" ><br />
+		PHONE : <input type="text" name="memPhone1" size="5"> -
+				<input type="text" name="memPhone2" size="5"> -
+				<input type="text" name="memPhone3" size="5"><br />
+		<input type="submit" value="Join" >
+		<input type="reset" value="Cancel" >
+	</form>
+	<a href="/lec17/resources/html/login.html">LOGIN</a> &nbsp;&nbsp; <a href="/lec17/resources/html/index.html">MAIN</a>
+</body>
+</html>
+```
+3.requestParameter: RequestMapping된 함수에서 html에서 받아온 request를 사용하기 위한 3가지 방법이 있음.  
+HttpServletRequest 객체를 사용해서 getParameter로 request받기
+
+```
+@RequestMapping(value="/memJoin", method=RequestMethod.POST)
+	public String memJoin(Model model, HttpServletRequest request) {
+		String memId = request.getParameter("memId");
+		String memPw = request.getParameter("memPw");
+		String memMail = request.getParameter("memMail");
+		String memPhone1 = request.getParameter("memPhone1");
+		String memPhone2 = request.getParameter("memPhone2");
+		String memPhone3 = request.getParameter("memPhone3");
+		
+		service.memberRegister(memId, memPw, memMail, memPhone1, memPhone2, memPhone3);
+		
+		model.addAttribute("memId", memId);
+		model.addAttribute("memPw", memPw);
+		model.addAttribute("memMail", memMail);
+		model.addAttribute("memPhone", memPhone1 + " - " + memPhone2 + " - " + memPhone3);
+		
+		return "memJoinOk";
+	}
+```
+@RequestParam을 사용하여 받기(String에 저장하는 과정 축소, parameter로 value ,required, defaultValue존재, 근데 거의 생략하고 value값만 사용)
+
+```
+public String memLogin(Model model, @RequestParam("memId") String memId, @RequestParam(value="memPw", required=false, defaultValue="1234") String memPw)
+```
+커맨드라인(Member객체)를 사용하여 받기(실무에서 주로 사용), request.getParameter로 받을 필요없이 member.getMemId()처럼 getter로 직접사용가능, view(jsp)에서도 moder.addAttribute로 받아서 사용할 필요없이 member.memId처럼 직접사용가능함.
+
+
+```
+public String memJoin(Member member)
+```
+
+maven project16(lec17):  
+1.  
