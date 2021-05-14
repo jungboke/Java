@@ -644,12 +644,91 @@ HttpServletRequest 객체를 사용해서 getParameter로 request받기
 ```
 public String memLogin(Model model, @RequestParam("memId") String memId, @RequestParam(value="memPw", required=false, defaultValue="1234") String memPw)
 ```
-커맨드라인(Member객체)를 사용하여 받기(실무에서 주로 사용), request.getParameter로 받을 필요없이 member.getMemId()처럼 getter로 직접사용가능, view(jsp)에서도 moder.addAttribute로 받아서 사용할 필요없이 member.memId처럼 직접사용가능함.
+커맨드객체(Member객체)를 사용하여 받기(실무에서 주로 사용), request.getParameter로 받을 필요없이 member.getMemId()처럼 getter로 직접사용가능, view(jsp)에서도 moder.addAttribute로 받아서 사용할 필요없이 member.memId처럼 직접사용가능함.
 
 
 ```
 public String memJoin(Member member)
 ```
+4.@ModelAttribute로 2가지 기능을 사용할수 있음.
 
-maven project16(lec17):  
-1.  
+view에서 사용되는 커맨드 객체의 이름을 변경함
+
+```
+@RequestMapping(value = "/memRemove", method = RequestMethod.POST)
+	public String memRemove(@ModelAttribute("mem") Member member) {
+		
+		service.memberRemove(member);
+		
+		return "memRemoveOk";
+	}
+```
+RequestMapping된 특정 Method가 실행될때 @ModelAttribute가 붙은 Method도 같이 실행됨
+
+```
+@ModelAttribute("serverTime")
+	public String getServerTime(Locale locale) {
+		
+		Date date = new Date();
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
+		
+		return dateFormat.format(date);
+	}
+```
+5.커맨드 객체의 property data 타입은 기초데이터 타입과 중첩 커멘드 객체(MemPhone)를 이용한 List구조일수 있음.
+
+```
+public class Member {
+	
+	private String memId;
+	private String memPw;
+	private String memMail;
+	private List<MemPhone> memPhones;
+	private int memAge;
+	private boolean memAdult;
+	private String memGender;
+	private String[] memFSports;
+```
+
+```
+public class MemPhone {
+	
+	private String memPhone1;
+	private String memPhone2;
+	private String memPhone3;
+	
+	public String getMemPhone1() {
+		return memPhone1;
+	}
+	public void setMemPhone1(String memPhone1) {
+		this.memPhone1 = memPhone1;
+	}
+	public String getMemPhone2() {
+		return memPhone2;
+	}
+	public void setMemPhone2(String memPhone2) {
+		this.memPhone2 = memPhone2;
+	}
+	public String getMemPhone3() {
+		return memPhone3;
+	}
+	public void setMemPhone3(String memPhone3) {
+		this.memPhone3 = memPhone3;
+	}
+	
+}
+```
+```
+ID : <input type="text" name="memId" ><br />
+		PW : <input type="password" name="memPw" ><br />
+		MAIL : <input type="text" name="memMail" ><br />
+		PHONE1 : <input type="text" name="memPhones[0].memPhone1" size="5"> -
+				 <input type="text" name="memPhones[0].memPhone2" size="5"> -
+				 <input type="text" name="memPhones[0].memPhone3" size="5"><br />
+		PHONE2 : <input type="text" name="memPhones[1].memPhone1" size="5"> -
+				 <input type="text" name="memPhones[1].memPhone2" size="5"> -
+				 <input type="text" name="memPhones[1].memPhone3" size="5"><br />
+```
+6.Controller에서 view에 데이터를 전달하기 위해 사용되는 객체로 Model과 ModelAndView가 있음. Model은 뷰에 데이터만 전달하며, ModelAndView는 데이터와 뷰의 이름을 함께 전달함.
+
+![modelAndview](https://github.com/jungboke/Java/blob/main/img/modelAndview.PNG?raw=true)
